@@ -1,0 +1,17 @@
+# Ambiente
+.env
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# ChromaDB / base vetorial
+rag/chroma_db/
+rag/faiss_index/
+
+# Ollama cache
+.ollama/
+
+# IDE
+.vscode/
+.idea/
