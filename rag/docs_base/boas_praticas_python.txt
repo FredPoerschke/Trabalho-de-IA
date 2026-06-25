@@ -1,0 +1,65 @@
+MANUAL DE BOAS PRATICAS - PYTHON (PERFORMANCE E LOGICA)
+
+1. CONCATENACAO DE STRING DENTRO DE LOOP
+Construir uma string acumulando resultado com "+=" dentro de um loop e
+ineficiente, pois strings em Python sao imutaveis e cada concatenacao cria um
+novo objeto na memoria, copiando todo o conteudo anterior. Prefira acumular os
+pedacos em uma lista e usar "".join(lista) ao final, ou utilizar f-strings
+quando o numero de partes for pequeno e conhecido.
+
+2. USO DE LISTA QUANDO UM GENERATOR SERIA SUFICIENTE
+Construir uma lista completa em memoria (list comprehension ou list()) quando
+o resultado sera apenas iterado uma vez (por exemplo, passado direto para sum,
+any, all ou um for) desperdica memoria desnecessariamente. Prefira expressoes
+geradoras (generator expressions) quando os elementos nao precisam ser
+acessados por indice ou reutilizados.
+
+3. BUSCA EM LISTA DENTRO DE LOOP (COMPLEXIDADE O(N*M))
+Verificar a presenca de um elemento com "if item in lista" dentro de um loop
+tem custo O(n) por verificacao, resultando em complexidade quadratica quando
+repetido m vezes. Quando a colecao de busca e fixa e reutilizada, converta-a
+para um set (set ou frozenset) antes do loop, reduzindo a busca para custo
+O(1) em media.
+
+4. MUTAVEL COMO VALOR PADRAO DE PARAMETRO (DEFAULT ARGUMENT)
+Definir um parametro de funcao com valor padrao mutavel (def f(lista=[])) e um
+erro classico em Python: o objeto padrao e criado uma unica vez na definicao
+da funcao e compartilhado entre todas as chamadas que nao passam o argumento
+explicitamente, causando efeitos colaterais inesperados entre chamadas
+diferentes. Utilize None como padrao e crie o objeto mutavel dentro do corpo da
+funcao.
+
+5. EXCECOES GENERICAS DEMAIS (EXCEPT BARE OU EXCEPT EXCEPTION)
+Capturar excecoes de forma generica demais (except: ou except Exception:) sem
+filtrar o tipo especifico esperado mascara erros de programacao reais (como
+KeyError ou TypeError por bug logico) junto com falhas esperadas (como
+FileNotFoundError). Capture o tipo de excecao mais especifico possivel e trate
+cada caso separadamente.
+
+6. CONSULTAS AO BANCO DE DADOS OU CHAMADAS DE REDE DENTRO DE LOOP
+Executar uma query ou requisicao HTTP dentro de um for/while a cada iteracao
+gera o problema N+1, multiplicando as latencias de rede pelo numero de itens.
+Prefira buscar todos os dados necessarios em uma unica consulta (usando IN,
+JOIN, ou paginas/batches) antes do loop, ou paralelizar as chamadas quando
+forem independentes entre si.
+
+7. USO DE PANDAS COM ITERROWS/APPLY EM VEZ DE OPERACOES VETORIZADAS
+Iterar linha a linha sobre um DataFrame com iterrows() ou aplicar uma funcao
+Python pura com apply() e significativamente mais lento do que usar operacoes
+vetorizadas nativas do pandas/NumPy (operacoes diretas sobre colunas, np.where,
+metodos vetorizados de string). Prefira sempre a forma vetorizada quando a
+logica permitir.
+
+8. AUSENCIA DE TYPE HINTS E VALIDACAO DE ENTRADA
+A ausencia de type hints em funcoes publicas dificulta a deteccao precoce de
+erros de tipo (que so aparecerao em tempo de execucao) e reduz a qualidade do
+autocomplete e das ferramentas de analise estatica. Para parametros recebidos
+de fontes externas (APIs, arquivos, entrada do usuario), valide explicitamente
+o tipo e o formato antes de usar o valor na logica de negocio.
+
+9. USO DE VARIAVEIS GLOBAIS MUTAVEIS PARA MANTER ESTADO
+Manter estado mutavel compartilhado em variaveis globais, modificado por
+multiplas funcoes, dificulta o rastreamento de quem altera o que e quando,
+alem de gerar problemas em cenarios concorrentes (threads, async). Prefira
+encapsular o estado em uma classe, em um parametro explicito, ou em uma
+estrutura imutavel quando possivel.

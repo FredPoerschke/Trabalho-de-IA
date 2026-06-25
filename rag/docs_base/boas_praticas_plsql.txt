@@ -1,0 +1,19 @@
+1. Evite executar SELECT dentro de loops ou cursores. Cada execucao de SQL dentro de um loop gera um round-trip ao banco de dados, aumentando drasticamente o tempo de execucao. Prefira buscar todos os dados de uma vez antes do loop usando colecoes (BULK COLLECT) ou JOINs.
+
+2. Use BULK COLLECT e FORALL para operacoes em massa. Em vez de processar linha por linha com cursores simples, utilize BULK COLLECT para carregar multiplas linhas em colecoes PL/SQL e FORALL para executar DML em lote. Isso reduz o numero de context switches entre SQL e PL/SQL.
+
+3. Sempre trate excecoes especificas antes de WHEN OTHERS. Capturar WHEN OTHERS sem antes tratar excecoes conhecidas (NO_DATA_FOUND, TOO_MANY_ROWS, DUP_VAL_ON_INDEX) dificulta o diagnostico de erros. Liste as excecoes especificas primeiro e use WHEN OTHERS apenas como fallback com RAISE ou log detalhado.
+
+4. Evite logica de negocios duplicada em multiplas procedures. Se o mesmo calculo ou regra de negocio aparece em mais de uma procedure, extraia-o para uma funcao separada. Codigo duplicado aumenta o risco de inconsistencias quando a regra muda.
+
+5. Use constantes para valores magicos. Valores numericos ou textuais fixos embutidos diretamente no codigo (como 0.11 para INSS ou 0.10 para bonus) devem ser substituidos por constantes nomeadas ou parametros de configuracao, facilitando manutencao e auditoria.
+
+6. Verifique o retorno de NVL e funcoes de agregacao. NVL(SUM(coluna), 0) e correto para evitar NULL em agregacoes, mas certifique-se de que o tipo de dado retornado e compativel com a variavel receptora para evitar erros de conversao implicita.
+
+7. Prefira um unico ponto de COMMIT por transacao. Realizar COMMIT dentro de procedures chamadas em loop ou em excesso fragmenta as transacoes e dificulta o rollback em caso de erro. Centralize o controle transacional no nivel mais alto da chamada.
+
+8. Documente as procedures com cabecalho padronizado. Todo objeto PL/SQL deve conter um comentario de cabecalho com: objetivo, parametros de entrada e saida, autor, data de criacao e historico de alteracoes.
+
+9. Valide os parametros de entrada no inicio da procedure. Antes de executar qualquer logica, verifique se os parametros obrigatorios sao validos (nao nulos, dentro dos intervalos esperados). Isso evita erros de runtime e melhora a rastreabilidade.
+
+10. Evite o uso de SELECT * em producao. Selecionar todas as colunas aumenta o consumo de rede e memoria, e torna o codigo fragil a mudancas de schema. Sempre liste explicitamente as colunas necessarias.

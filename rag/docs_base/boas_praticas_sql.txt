@@ -1,0 +1,53 @@
+MANUAL DE BOAS PRATICAS - SQL E PL/SQL (PERFORMANCE E LOGICA)
+
+1. CURSORES EXPLICITOS DESNECESSARIOS
+Evite abrir um cursor explicito (FOR loop em SELECT) para realizar operacoes que
+poderiam ser feitas em uma unica instrucao SQL com agregacao (SUM, COUNT, AVG).
+Cursores linha-a-linha geram alto custo de context switch entre o motor SQL e o
+mecanismo PL/SQL (efeito conhecido como "row-by-row, slow-by-slow").
+Prefira operacoes em massa (bulk) como BULK COLLECT e FORALL quando o
+processamento individual for realmente necessario.
+
+2. SELECT INTO SEM TRATAMENTO DE MULTIPLAS LINHAS
+Uma clausula SELECT ... INTO que nao usa agregacao pode lancar a excecao
+TOO_MANY_ROWS caso a condicao do WHERE retorne mais de uma linha. Sempre avalie
+se a chave de busca garante unicidade (chave primaria/unica) ou utilize funcoes
+de agregacao (MAX, MIN, SUM) para evitar esse risco.
+
+3. TRATAMENTO GENERICO DE EXCECOES (WHEN OTHERS)
+O uso de "WHEN OTHERS THEN" sem relancar a excecao (RAISE) ou sem registrar o
+erro de forma detalhada mascara problemas reais e dificulta a depuracao.
+Boas praticas recomendam logar o codigo (SQLCODE) e a mensagem (SQLERRM) em uma
+tabela de auditoria/log antes de decidir se a excecao deve ser suprimida ou
+repropagada.
+
+4. TRANSACOES E COMMIT
+Evite multiplos COMMITs dentro de um mesmo loop (commit a cada iteracao), pois
+isso aumenta drasticamente o overhead de I/O em redo logs e quebra a atomicidade
+da operacao como um todo. Prefira um unico COMMIT ao final do bloco logico,
+garantindo que toda a operacao seja atomica (tudo ou nada).
+
+5. VALORES MAGICOS (MAGIC NUMBERS) E REGRAS DE NEGOCIO HARDCODED
+Constantes de negocio embutidas diretamente no codigo (por exemplo, aliquotas de
+desconto, percentuais de bonus ou limites de horas) deveriam estar centralizadas
+em uma tabela de parametros ou em constantes nomeadas. Isso evita que uma
+mudanca de regra de negocio exija alteracao e recompilacao de multiplas
+procedures.
+
+6. NVL E TRATAMENTO DE NULOS
+Sempre trate explicitamente a possibilidade de retorno NULL em agregacoes
+(SUM, AVG) quando nao houver linhas correspondentes, usando NVL ou COALESCE.
+Comparacoes diretas com NULL (campo = NULL) sempre retornam falso/desconhecido
+e sao uma fonte comum de bugs logicos sutis.
+
+7. INDICES E CLAUSULAS WHERE
+Colunas usadas frequentemente em filtros (WHERE) e em condicoes de JOIN devem
+possuir indices adequados. Funcoes aplicadas sobre a coluna indexada dentro do
+WHERE (ex: EXTRACT, UPPER, TRUNC) invalidam o uso do indice, a menos que exista
+um indice baseado em funcao (function-based index) correspondente.
+
+8. CONCATENACAO DE STRING EM SQL DINAMICO
+A construcao de comandos SQL dinamicos por concatenacao direta de variaveis de
+entrada do usuario é a principal causa de vulnerabilidades de SQL Injection.
+Sempre utilize bind variables (parametros) em EXECUTE IMMEDIATE ou em comandos
+preparados, nunca concatenacao de string.

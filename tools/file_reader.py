@@ -3,7 +3,7 @@ from typing import Type
 from pydantic import BaseModel, Field
 from crewai.tools import BaseTool
 
-ALLOWED_EXTENSIONS = {".sql", ".js", ".ts", ".py", ".java", ".c", ".cpp", ".txt"}
+ALLOWED_EXTENSIONS = {".sql", ".js", ".ts", ".py", ".java", ".c", ".cpp", ".h", ".hpp", ".txt"}
 
 
 class FileReaderInput(BaseModel):

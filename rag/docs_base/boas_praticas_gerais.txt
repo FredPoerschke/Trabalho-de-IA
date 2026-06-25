@@ -1,0 +1,43 @@
+MANUAL DE BOAS PRATICAS - PERFORMANCE E QUALIDADE GERAL DE CODIGO
+
+1. PRINCIPIO DRY (DONT REPEAT YOURSELF)
+Blocos de logica duplicados em multiplas funcoes ou procedures indicam a
+necessidade de extracao para uma funcao/metodo comum. Codigo duplicado aumenta
+o custo de manutencao, pois uma correcao precisa ser replicada em todos os
+pontos onde a logica foi copiada.
+
+2. COMPLEXIDADE CICLOMATICA ELEVADA
+Funcoes ou procedures com muitos caminhos de decisao aninhados (IF dentro de
+IF dentro de IF, ou multiplos CASE encadeados) sao dificeis de testar e
+propensas a erros. Quando a complexidade ciclomatica e alta, considere quebrar
+a logica em funcoes menores e mais especificas, cada uma com uma unica
+responsabilidade.
+
+3. NOMES DE VARIAVEIS E FUNCOES POUCO DESCRITIVOS
+Identificadores genericos (x, temp, dados2, flag) dificultam a leitura e a
+manutencao do codigo por terceiros. Nomes devem expressar claramente o
+proposito da variavel ou funcao dentro do dominio do problema.
+
+4. AUSENCIA DE LOGS EM OPERACOES CRITICAS
+Operacoes que alteram dados de forma definitiva (calculos financeiros, exclusao
+de registros, alteracoes de status) deveriam gerar um registro de auditoria
+(quem, quando, o que mudou) para permitir rastreabilidade em caso de
+divergencia ou erro detectado posteriormente.
+
+5. GARGALOS DE PERFORMANCE EM OPERACOES REPETITIVAS
+Operacoes custosas (leitura de arquivo, parsing, chamadas de rede, calculos
+pesados) executadas repetidamente com os mesmos parametros sao candidatas a
+cache. Avalie se o resultado pode ser armazenado e reutilizado em vez de
+recalculado a cada chamada.
+
+6. ACOPLAMENTO EXCESSIVO ENTRE CAMADAS
+Logica de negocio misturada diretamente com codigo de acesso a dados ou com
+codigo de apresentacao (UI) dificulta testes unitarios e a substituicao de
+componentes. Separe claramente as responsabilidades em camadas (dados, regras
+de negocio, apresentacao).
+
+7. VALIDACAO ANTECIPADA (FAIL FAST)
+Funcoes devem validar suas precondicoes (parametros obrigatorios, formatos
+esperados, limites de valores) no inicio da execucao e retornar/lancar erro
+imediatamente quando invalidas, em vez de permitir que o fluxo continue e falhe
+de forma inesperada mais adiante, com uma mensagem de erro menos clara.

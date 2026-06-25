@@ -1,0 +1,64 @@
+MANUAL DE BOAS PRATICAS - C++ (PERFORMANCE E LOGICA)
+
+1. PASSAGEM DE OBJETOS GRANDES POR VALOR
+Passar objetos grandes (strings, vectors, structs complexas) por valor para
+funcoes forca uma copia completa do objeto a cada chamada. Quando a funcao nao
+precisa modificar o objeto, prefira passagem por referencia constante
+(const T&). Quando a modificacao e necessaria, use referencia (T&) em vez de
+retornar uma copia nova.
+
+2. USO DE NEW/DELETE MANUAL EM VEZ DE SMART POINTERS
+Alocacao manual de memoria com new/delete aumenta o risco de memory leaks
+(quando o delete e esquecido) e de double free (quando o delete e chamado mais
+de uma vez sobre o mesmo ponteiro). Prefira sempre std::unique_ptr para posse
+exclusiva ou std::shared_ptr para posse compartilhada, deixando o
+gerenciamento do ciclo de vida a cargo do RAII (Resource Acquisition Is
+Initialization).
+
+3. CRESCIMENTO REPETIDO DE VECTOR SEM RESERVE
+Inserir elementos em um std::vector dentro de um loop sem chamar reserve()
+previamente faz com que o vector realoque e copie seu conteudo interno varias
+vezes conforme cresce. Quando o tamanho final e conhecido ou estimavel
+antecipadamente, chame vector.reserve(n) antes do loop de insercao para evitar
+realocacoes desnecessarias.
+
+4. COPIA DESNECESSARIA EM LOOPS DE ITERACAO (RANGE-BASED FOR)
+Um range-based for declarado como "for (auto item : colecao)" copia cada
+elemento da colecao durante a iteracao. Quando o item nao precisa ser
+modificado, utilize "for (const auto& item : colecao)" para iterar por
+referencia constante e evitar copias. Quando a modificacao for necessaria,
+utilize "for (auto& item : colecao)".
+
+5. AUSENCIA DE DESTRUTOR VIRTUAL EM CLASSES BASE POLIMORFICAS
+Uma classe base que possui metodos virtuais e e destruida atraves de um
+ponteiro para a classe base (delete via Base*) precisa declarar seu destrutor
+como virtual. Caso contrario, o destrutor da classe derivada nao sera chamado,
+causando vazamento de recursos alocados pela classe derivada.
+
+6. COMPARACAO E ALOCACAO DE STRINGS EM LOOPS CRITICOS
+Concatenacao repetida de std::string dentro de um loop usando o operador "+"
+gera multiplas alocacoes e copias intermediarias. Quando o numero de
+concatenacoes e grande, prefira std::string::reserve() seguido de append(), ou
+um std::ostringstream, para reduzir o numero de realocacoes.
+
+7. PONTEIROS NAO INICIALIZADOS E DANGLING POINTERS
+Um ponteiro declarado sem inicializacao explicita contem um endereco
+indeterminado (lixo de memoria), e desreferencia-lo gera comportamento
+indefinido. Da mesma forma, manter um ponteiro apos o delete do objeto
+apontado (dangling pointer) e uma fonte comum de falhas dificeis de
+reproduzir. Sempre inicialize ponteiros com nullptr quando nao houver um
+objeto valido a apontar, e zere o ponteiro apos o delete.
+
+8. TRATAMENTO DE EXCECOES MUITO GENERICO (CATCH (...))
+Capturar qualquer excecao com "catch (...)" sem distinguir o tipo real do erro
+dificulta a depuracao e pode mascarar falhas serias, como corrupcao de memoria
+sinalizada por exceções especificas. Prefira capturar tipos especificos
+(catch (const std::exception& e)) e tratar cada categoria de erro de forma
+apropriada, relancando quando o tratamento generico nao for suficiente.
+
+9. COMPLEXIDADE ALGORITMICA EM BUSCAS REPETIDAS
+Buscar um elemento em um std::vector ou std::list dentro de um loop (usando
+std::find) tem custo O(n) por busca, resultando em O(n*m) no total. Quando
+buscas repetidas sao necessarias, prefira estruturas com busca O(log n) ou
+O(1), como std::map, std::unordered_map ou std::set, dependendo da
+necessidade de ordenacao.

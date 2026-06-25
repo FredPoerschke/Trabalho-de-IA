@@ -1,0 +1,48 @@
+MANUAL DE BOAS PRATICAS - JAVASCRIPT (PERFORMANCE E LOGICA)
+
+1. LOOPS ANINHADOS E COMPLEXIDADE QUADRATICA
+Buscar um elemento dentro de um array usando indexOf, find ou includes dentro de
+outro loop (ex: for dentro de for) cria complexidade O(n*m). Quando possivel,
+converta a estrutura de busca para um Map ou Set (lookup O(1)) antes de iniciar
+o loop principal.
+
+2. CONSULTAS AO BANCO DE DADOS DENTRO DE LOOPS
+Realizar uma query (SELECT) ou chamada assincrona a um banco de dados dentro de
+um loop "for" ou "forEach" gera o problema N+1, multiplicando o numero de
+round-trips de rede pelo numero de itens. Prefira buscar todos os dados
+necessarios em uma unica consulta (usando IN ou JOIN) antes do loop.
+
+3. USO DE ASYNC/AWAIT EM SEQUENCIA QUANDO PODERIA SER PARALELO
+Quando multiplas operacoes assincronas independentes sao executadas com await
+uma apos a outra dentro de um loop sequencial, o tempo total e a soma de todas
+as latencias. Quando as operacoes nao dependem do resultado umas das outras,
+utilize Promise.all para executa-las em paralelo.
+
+4. MUTACAO DE PARAMETROS E EFEITOS COLATERAIS OCULTOS
+Funcoes que recebem um objeto ou array por referencia e o modificam diretamente
+(sem clonar) geram efeitos colaterais dificeis de rastrear. Prefira retornar um
+novo objeto/array (imutabilidade) ou deixe explicito no nome da funcao que ela
+muta o parametro recebido.
+
+5. COMPARACAO COM == EM VEZ DE ===
+O uso do operador de igualdade frouxa (==) permite coercao de tipos implicita,
+o que pode gerar comparacoes verdadeiras de forma inesperada (ex: 0 == "" ou
+null == undefined). Utilize sempre o operador de igualdade estrita (===) para
+evitar bugs logicos sutis relacionados a tipos.
+
+6. CREDENCIAIS E CHAVES HARDCODED NO CODIGO-FONTE
+Strings de conexao, senhas, tokens de API ou chaves secretas nunca devem
+aparecer diretamente no codigo-fonte. Devem ser carregadas de variaveis de
+ambiente (process.env) ou de um gerenciador de segredos.
+
+7. TRATAMENTO DE ERROS EM PROMISES
+Toda chamada assincrona (fetch, query, etc.) deve possuir tratamento de erro
+explicito via try/catch (com async/await) ou .catch() (com Promises). A
+ausencia de tratamento pode causar UnhandledPromiseRejection e encerrar o
+processo de forma abrupta em versoes mais recentes do Node.js.
+
+8. VALIDACAO DE ENTRADA DO USUARIO
+Dados recebidos de formularios, query strings ou corpo de requisicoes (req.body)
+devem ser validados e sanitizados antes de serem usados em logica de negocio ou
+em consultas ao banco de dados, prevenindo tanto bugs logicos quanto
+vulnerabilidades de injecao.
