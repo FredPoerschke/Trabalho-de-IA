@@ -1,6 +1,12 @@
-from crewai import Agent
+import os
+from crewai import Agent, LLM
 
 def create_agente_sintetizador() -> Agent:
+    llm = LLM(
+        model=f"ollama/{os.getenv('OLLAMA_MODEL', 'llama3.2')}",
+        base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
+    )
+
     return Agent(
         role="Gerente Técnico e Relator Líder",
         goal="Consolidar os relatórios de performance, lógica e segurança num único documento final perfeitamente estruturado.",
@@ -11,5 +17,6 @@ def create_agente_sintetizador() -> Agent:
             "formatado estritamente em Markdown. Separe claramente as seções de Performance e as de Segurança."
         ),
         verbose=True,
-        allow_delegation=False
+        allow_delegation=False,
+        llm=llm,
     )
