@@ -2,6 +2,8 @@
 
 Sistema multi-agente de revisão de código usando CrewAI e modelos locais via Ollama.
 
+Por: Lucian Bellini, Frederico Poerschke, Gabriel Kobielski e Erik Rocha.
+
 ---
 
 ## Pré-requisitos
