@@ -1,14 +1,11 @@
 import os
 from crewai import Agent, LLM
-from tools.vector_search import VectorSearchTool
 
-def create_agente_auditor() -> Agent:
+def create_agente_auditor(vector_search_tool) -> Agent:
     llm = LLM(
         model=f"ollama/{os.getenv('OLLAMA_MODEL', 'llama3.2')}",
         base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
     )
-
-    ferramenta_busca = VectorSearchTool()
 
     return Agent(
         role="Auditor Sênior de Segurança de Código (AppSec)",
@@ -22,6 +19,6 @@ def create_agente_auditor() -> Agent:
         ),
         verbose=True,
         allow_delegation=False,
-        tools=[ferramenta_busca],
+        tools=[vector_search_tool],
         llm=llm,
     )

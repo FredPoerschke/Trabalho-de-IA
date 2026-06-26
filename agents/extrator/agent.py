@@ -1,9 +1,8 @@
 import os
 from crewai import Agent, LLM
-from tools.file_reader import FileReaderTool
 
 
-def create_agente_leitor() -> Agent:
+def create_agente_leitor(file_reader_tool) -> Agent:
     llm = LLM(
         model=f"ollama/{os.getenv('OLLAMA_MODEL', 'llama3.2')}",
         base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
@@ -29,7 +28,7 @@ def create_agente_leitor() -> Agent:
             "nunca reescreve nomes de funcoes ou variaveis, e nunca formata o codigo de forma "
             "diferente do original."
         ),
-        tools=[FileReaderTool(result_as_answer=True)],
+        tools=[file_reader_tool],
         llm=llm,
         verbose=True,
         allow_delegation=False,

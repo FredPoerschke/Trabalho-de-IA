@@ -1,9 +1,8 @@
 import os
 from crewai import Agent, LLM
-from tools.vector_search import VectorSearchTool
 
 
-def create_agente_especialista() -> Agent:
+def create_agente_especialista(vector_search_tool) -> Agent:
     llm = LLM(
         model=f"ollama/{os.getenv('OLLAMA_MODEL', 'llama3.2')}",
         base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
@@ -31,7 +30,7 @@ def create_agente_especialista() -> Agent:
             "manutenibilidade, cita o trecho do manual que fundamenta a observacao "
             "e sugere uma correcao concreta."
         ),
-        tools=[VectorSearchTool()],
+        tools=[vector_search_tool],
         llm=llm,
         verbose=True,
         allow_delegation=False,
